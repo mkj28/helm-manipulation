@@ -14,7 +14,15 @@ steps:
   modify_yaml:
     image: mikefarah/yq:2.2.0
     description: Set image tag
+    working_directory: ${{main_clone}}/${{REPO_NAME}}
     commands:
-      - pwd
-      - ls
-      - yq read helmfile.d/synthetic.yaml releases[0].values[0].image.tag
+      - yq read helmfile.d/${{SERVICE}}.yaml releases[0].values[0].image.tag
+      - yq write --inplace helmfile.d/${{SERVICE}}.yaml releases[0].values[0].image.tag ${{TAG}}
+
+  push_to_git:
+    image: codefreshio/git-image:latest
+    description: "Commit to repo"
+    working_directory: ${{main_clone}}/${{REPO_NAME}}
+    commands:
+      - git commit helmfile.d/${{SERVICE}}.yaml -m 'Setting tag to ${{TAG}}'
+      - git push origin ${{BRANCH}}
