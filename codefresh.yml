@@ -25,6 +25,5 @@ steps:
     working_directory: ${{CF_VOLUME_PATH}}/${{REPO_NAME}}
     commands:
       - git config --global user.email "tools@gladly.com"
-      - git config --global user.name "codefresh"
-      - git commit helmfile.d/${{SERVICE}}.yaml -m 'Setting tag to ${{TAG}}'
-      - git push origin ${{BRANCH}}
+      - git config --global user.name "codefresh
+      - git diff-index --quiet HEAD -- || (git commit helmfile.d/${{SERVICE}}.yaml -m 'Setting tag to ${{TAG}}' && git push origin ${{BRANCH}})
