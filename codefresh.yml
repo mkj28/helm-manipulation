@@ -6,15 +6,15 @@ steps:
     working_directory: ${{main_clone}}
     commands:
       # checkout fresh
-      - bash -c 'rm -rf /codefresh/volume/${{REPO_NAME}}/'
-      - git clone https://${{GITHUB_TOKEN}}@github.com/${{REPO_OWNER}}/${{REPO_NAME}}.git /codefresh/volume/${{REPO_NAME}}
-      - bash -c 'cd /codefresh/volume/${{REPO_NAME}}/ && git checkout ${{BRANCH}} && git branch && git status'
-      - ls -l /codefresh/volume/${{REPO_NAME}}
+      - bash -c 'rm -rf ${{CF_VOLUME_PATH}}/${{REPO_NAME}}/'
+      - git clone https://${{GITHUB_TOKEN}}@github.com/${{REPO_OWNER}}/${{REPO_NAME}}.git ${{CF_VOLUME_PATH}}/${{REPO_NAME}}
+      - bash -c 'cd ${{CF_VOLUME_PATH}}/${{REPO_NAME}}/ && git checkout ${{BRANCH}} && git branch && git status'
+      - ls -l ${{CF_VOLUME_PATH}}/${{REPO_NAME}}
 
   modify_yaml:
     image: mikefarah/yq:2.2.0
     description: Set image tag
-    working_directory: ${{main_clone}}/${{REPO_NAME}}
+    working_directory: ${{CF_VOLUME_PATH}}/${{REPO_NAME}}
     commands:
       - yq read helmfile.d/${{SERVICE}}.yaml releases[0].values[0].image.tag
       - yq write --inplace helmfile.d/${{SERVICE}}.yaml releases[0].values[0].image.tag ${{TAG}}
@@ -22,7 +22,7 @@ steps:
   push_to_git:
     image: codefreshio/git-image:latest
     description: "Commit to repo"
-    working_directory: ${{main_clone}}/${{REPO_NAME}}
+    working_directory: ${{CF_VOLUME_PATH}}/${{REPO_NAME}}
     commands:
       - git commit helmfile.d/${{SERVICE}}.yaml -m 'Setting tag to ${{TAG}}'
       - git push origin ${{BRANCH}}
