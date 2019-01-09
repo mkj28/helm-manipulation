@@ -5,3 +5,11 @@ steps:
     description: "Clone repo"
     repo: https://${{GITHUB_TOKEN}}@github.com/${{REPO_OWNER}}/${{REPO_NAME}}.git
     revision: ${{BRANCH}}
+
+  modify_yaml:
+    image: mikefarah/yq:2.2.0
+    description: Set image tag
+    commands:
+      - pwd
+      - ls
+      - yq read helmfile.d/synthetic.yaml releases[0].values[0].image.tag
