@@ -6,10 +6,9 @@ steps:
     working_directory: ${{main_clone}}
     commands:
       # checkout fresh
-      - bash -c 'rm -rf ${{CF_VOLUME_PATH}}/${{REPO_NAME}}/'
+      - rm -rf ${{CF_VOLUME_PATH}}/${{REPO_NAME}}/
       - git clone https://${{GITHUB_TOKEN}}@github.com/${{REPO_OWNER}}/${{REPO_NAME}}.git ${{CF_VOLUME_PATH}}/${{REPO_NAME}}
-      - bash -c 'cd ${{CF_VOLUME_PATH}}/${{REPO_NAME}}/ && git checkout ${{BRANCH}} && git branch && git status'
-      - ls -l ${{CF_VOLUME_PATH}}/${{REPO_NAME}}
+      - cd ${{CF_VOLUME_PATH}}/${{REPO_NAME}}/ && git checkout ${{BRANCH}} && git branch && git status
 
   modify_yaml:
     image: mikefarah/yq:2.2.0
@@ -26,4 +25,5 @@ steps:
     commands:
       - git config --global user.email "tools@gladly.com"
       - git config --global user.name "codefresh"
+      # push only if needed
       - git add helmfile.d/${{SERVICE}}.yaml && git diff-index --quiet HEAD -- || (git commit -m 'Setting tag to ${{TAG}}' && git push origin ${{BRANCH}})
