@@ -1,10 +1,15 @@
 version: '1.0'
 steps:
   git_clone:
-    type: git-clone
+    image: codefreshio/git-image:latest
     description: "Clone repo"
-    repo: https://${{GITHUB_TOKEN}}@github.com/${{REPO_OWNER}}/${{REPO_NAME}}.git
-    revision: ${{BRANCH}}
+    working_directory: ${{main_clone}}
+    commands:
+      # checkout fresh
+      - bash -c 'rm -rf /codefresh/volume/${{REPO_NAME}}/'
+      - git clone https://${{GITHUB_TOKEN}}@github.com/${{REPO_OWNER}}/${{REPO_NAME}}.git /codefresh/volume/${{REPO_NAME}}
+      - bash -c 'cd /codefresh/volume/${{REPO_NAME}}/ && git checkout ${{BRANCH}} && git branch && git status'
+      - ls -l /codefresh/volume/${{REPO_NAME}}
 
   modify_yaml:
     image: mikefarah/yq:2.2.0
