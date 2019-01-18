@@ -23,7 +23,7 @@ steps:
     commands:
       - echo "Current version":" $(yq '.releases[] | select(.name=="${{SERVICE}}") | .version' helmfile.d/${{SERVICE}}.yaml)"
       - yq '.releases |= map((select(.name == "${{SERVICE}}") | .version) |= "${{TAG}}")' helmfile.d/${SERVICE}.yaml  --yaml-output
-      - cat <<< "$(yq '.releases |= map((select(.name == "${{SERVICE}}") | .version) |= "${{TAG}}")' --yaml-output < helmfile.d/${SERVICE}.yaml)" > helmfile.d/${SERVICE}.yaml
+      - yq '.releases |= map((select(.name == "${{SERVICE}}") | .version) |= "${{TAG}}")' helmfile.d/${SERVICE}.yaml  --yaml-output > /tmp/${SERVICE}.yaml && mv /tmp/${SERVICE}.yaml helmfile.d/${SERVICE}.yaml
 
   push_to_git:
     image: codefreshio/git-image:latest
