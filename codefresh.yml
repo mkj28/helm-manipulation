@@ -21,7 +21,7 @@ steps:
     description: Set values
     working_directory: ${{CF_VOLUME_PATH}}/${{REPO_NAME}}
     commands:
-      - echo "Current version":" $(yq '.releases[] | select(.name=="${{SERVICE}}") | .version' helmfile.d/${{SERVICE}}.yaml)"
+      - echo CURRENT_TAG=$(yq '.releases[] | select(.name=="${{SERVICE}}") | .version' helmfile.d/${{SERVICE}}.yaml) >> ${CF_VOLUME_PATH}/env_vars_to_export
       - yq '.releases |= map((select(.name == "${{SERVICE}}") | .version) |= "${{TAG}}")' helmfile.d/${SERVICE}.yaml  --yaml-output
       - yq '.releases |= map((select(.name == "${{SERVICE}}") | .version) |= "${{TAG}}")' helmfile.d/${SERVICE}.yaml  --yaml-output | sponge helmfile.d/${SERVICE}.yaml
 
@@ -33,4 +33,4 @@ steps:
       - git config --global user.email "tools@gladly.com"
       - git config --global user.name "codefresh"
       # push only if needed
-      - git add helmfile.d/${{SERVICE}}.yaml && git diff-index --quiet HEAD -- || (git commit -m 'Setting tag to ${{TAG}}' && git push origin ${{BRANCH}} >/dev/null )
+      - git add helmfile.d/${{SERVICE}}.yaml && git diff-index --quiet HEAD -- || (git commit -m '${{SERVICE}}":" ${{CURRENT_TAG}} --> ${{TAG}}' && git push origin ${{BRANCH}} >/dev/null )
