@@ -21,6 +21,9 @@ steps:
     description: Set values
     working_directory: ${{CF_VOLUME_PATH}}/${{REPO_NAME}}
     commands:
+      - whoami
+      - set | grep PATH
+      - which yq
       - echo "Current version":" $(yq '.releases[] | select(.name=="${{SERVICE}}") | .version' helmfile.d/${{SERVICE}}.yaml)"
       - yq '.releases |= map((select(.name == ${{SERVICE}}) | .version) |= "${{TAG}}")' helmfile.d/${{SERVICE}}.yaml  --yaml-output > helmfile.d/${{SERVICE}}.yaml
 
