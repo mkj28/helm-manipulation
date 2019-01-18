@@ -1,5 +1,11 @@
 version: '1.0'
 steps:
+  build_yq:
+    type: build
+    title: Build yq Docker image
+    dockerfile: Dockerfile
+    image_name: sagan/${{CF_REPO_NAME}}
+
   git_clone:
     image: codefreshio/git-image:latest
     description: "Clone repo"
@@ -11,12 +17,12 @@ steps:
       - cd ${{CF_VOLUME_PATH}}/${{REPO_NAME}}/ && git checkout ${{BRANCH}} && git branch && git status
 
   modify_yaml:
-    image: mikefarah/yq:2.2.0
-    description: Set image tag
+    image: ${{build_yq}}
+    description: Set values
     working_directory: ${{CF_VOLUME_PATH}}/${{REPO_NAME}}
     commands:
-      - yq read helmfile.d/${{SERVICE}}.yaml releases[0].values[0].image.tag
-      - yq write --inplace helmfile.d/${{SERVICE}}.yaml releases[0].values[0].image.tag ${{TAG}}
+      - echo "Current version: $(yq '.releases[] | select(.name=="${{SERVICE}}") | .version' helmfile.d/${{SERVICE}}.yaml)"
+      - yq '.releases |= map((select(.name == ${{SERVICE}}) | .version) |= "${{TAG}}")' helmfile.d/${{SERVICE}}.yaml  --yaml-output > helmfile.d/${{SERVICE}}.yaml
 
   push_to_git:
     image: codefreshio/git-image:latest
