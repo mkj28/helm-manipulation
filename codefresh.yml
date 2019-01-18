@@ -33,4 +33,4 @@ steps:
       - git config --global user.email "tools@gladly.com"
       - git config --global user.name "codefresh"
       # push only if needed
-      - git add helmfile.d/${{SERVICE}}.yaml && git diff-index --quiet HEAD -- || (git commit -m '${{SERVICE}}":" ${{CURRENT_TAG}} --> ${{TAG}}' && git push origin ${{BRANCH}} >/dev/null )
+      - git add helmfile.d/${{SERVICE}}.yaml && git diff-index --quiet HEAD -- || (git commit -m '${{SERVICE}} tag change from ${{CURRENT_TAG}} to ${{TAG}}' && git push origin ${{BRANCH}} >/dev/null )
